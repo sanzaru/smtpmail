@@ -1,20 +1,16 @@
-smtpmail
-========
-
-The smtpMail library provides a simple class like interface for sending E-Mails over SMTP from a C language program.
-
+The smtpMail library provides a simple interface for sending E-Mails over a SMTP server from a C or C++ language program.
 I can be included in the source code directly or just dynamically linked as a DLL or .so file.
-
 A common use would be in mailing software (e.g. Newsletter programs or E-mail clients).
 
-Dependencies
--------------
-* A working c compiler and linker (of course)
+### Dependencies
+
+* A working C/C++ compiler and linker (of course)
 * openssl development libraries
 
-Features
---------
-smtpMail is intended to be simple and so there is no complex framework or API. The only and most important features are:
+### Features
+
+smtpMail is intended to be simple and so there is no complex framework or API. 
+The only and most important features are:
 
 * Send mail to one or more recipients
 * Support of TLS servers
@@ -24,8 +20,14 @@ smtpMail is intended to be simple and so there is no complex framework or API. T
 
 **To send HTML mails:** Unfortunately smtpMail cannot send HTML formatted mails. It will handle them, but in every test no HTML mail ever reached the recipient.
 
-Installation
---------
+### To do
+
+* SSL support
+* Better TLS support
+
+
+### Installation
+
 Compile the library and test program:
 
 ```
@@ -38,8 +40,7 @@ Compile shared library:
 make shared
 ```
 
-Examples
---------
+### Examples
 
 Include the library
 
