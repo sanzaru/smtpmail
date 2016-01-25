@@ -41,7 +41,7 @@ DESCRIPTION:
 /*
 	Encode a string to base64 and return it
 */
-char *b64_encode(char *string, int length) {
+char *b64_encode(const char *string, int length) {
   BIO *bmem=NULL, *b64=NULL;
   BUF_MEM *bptr;
   char *buffer;

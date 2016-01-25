@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 		lSize = ftell(fd)-1;
 		rewind (fd);
 
-		body = malloc(lSize+1);
+		body = (char*)malloc(lSize+1);
 		#ifdef _WIN32
 			memset(body, 0, sizeof(char*));
 		#endif
@@ -55,9 +55,8 @@ int main(int argc, char **argv) {
 		if( res == SMTP_ERR_NOERROR ) {
 			printf("Mail successfully sent to: %s!\n", mail->to);
 		} else {
-			char *message=smtpMail_error(res);
+			const char *message=smtpMail_error(res);
 			printf("%s", message);
-			free(message);
 		}
 		printf("Finished mail send from test\n");
 		printf("Info\n");

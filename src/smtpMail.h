@@ -188,15 +188,15 @@ struct smtpMail
 };
 
 /* Contructor prototype */
-struct smtpMail *smtpMail_init(char *f, char *t, char *s, char *b);
+struct smtpMail *smtpMail_init(const char *f, const char *t, const char *s, const char *b);
 
 /* Destructor prototype */
 void smtpMail_free(struct smtpMail *mail);
 
 /* Send mail function prototype */
-unsigned char smtpMail_send(struct smtpMail *mail, char *serv, int port, char *usr, char *pwd);
+unsigned char smtpMail_send(struct smtpMail *mail, const char *serv, int port, const char *usr, const char *pwd);
 
 /* Parse error code and return message */
-char * smtpMail_error(unsigned char code);
+const char * smtpMail_error(unsigned char code);
 
 #endif

@@ -52,32 +52,32 @@ LICENSE:
 /*
 	Constructor
 */
-struct smtpMail *smtpMail_init(char *f, char *t, char *s, char *b) {
-	struct smtpMail *mail=malloc (sizeof (struct smtpMail));
-	char *infoFormat = "----------\nMail info:\n----------\nTo: %s\nFrom: %s\nSubject: %s\nBody size: %d\nBody: %s\n\n";
+struct smtpMail *smtpMail_init(const char *f, const char *t, const char *s, const char *b) {
+	struct smtpMail *mail=(struct smtpMail*)malloc (sizeof (struct smtpMail));
+	const char *infoFormat = "----------\nMail info:\n----------\nTo: %s\nFrom: %s\nSubject: %s\nBody size: %d\nBody: %s\n\n";
 	int lenFormat;
 	int lenData;
 
 	/* Set sender address */
-	mail->from = malloc(strlen(f) + 1);
+	mail->from = (char*)malloc(strlen(f) + 1);
 	sprintf(mail->from, "%s", f);
 
 	/* Set recipient address */
-	mail->to = malloc(strlen(t) + 1);
+	mail->to = (char*)malloc(strlen(t) + 1);
 	sprintf(mail->to, "%s", t);
 
 	/* Set subject text */
-	mail->subj = malloc(strlen(s) + 1);
+	mail->subj = (char*)malloc(strlen(s) + 1);
 	sprintf(mail->subj, "%s", s);
 
 	/* Set body text */
-	mail->body = malloc(strlen(b) + 1);
+	mail->body = (char*)malloc(strlen(b) + 1);
 	sprintf(mail->body, "%s", b);
 
 	/* Set info text */
 	lenFormat = strlen(infoFormat);
 	lenData = strlen(mail->to) + strlen(mail->from) + strlen(mail->subj) + strlen(mail->body);
-	mail->info = malloc(lenFormat + lenData + 1);
+	mail->info = (char*)malloc(lenFormat + lenData + 1);
 	sprintf(mail->info, infoFormat, mail->to, mail->from, mail->subj, strlen(mail->body), mail->body);
 
 	/* Set the variables to false,
@@ -85,7 +85,7 @@ struct smtpMail *smtpMail_init(char *f, char *t, char *s, char *b) {
 	mail->sent = FALSE;
 	mail->login = FALSE;
 
-	mail->hostname = malloc(1024);
+	mail->hostname = (char*)malloc(1024);
 	(mail->hostname)[0] = '\0';
 
 	if( gethostname(mail->hostname, 1024) <= 0 ) {
@@ -204,7 +204,7 @@ unsigned char smtpMail_comServ(struct smtpMail *mail, SOCKET sock) {
 	char *tmpMail;
 	int rc;
 	int lenFormat, lenMail;
-	char *formatMail = "From: <%s>\r\nTo: <%s>\r\nSubject: %s\r\n\r\n%s%s";
+	const char *formatMail = "From: <%s>\r\nTo: <%s>\r\nSubject: %s\r\n\r\n%s%s";
 
 	#ifdef _WIN32
 		char *mailBuf;
@@ -213,11 +213,11 @@ unsigned char smtpMail_comServ(struct smtpMail *mail, SOCKET sock) {
 	/* Create the mail in right format and put EOF at the end */
 	lenFormat = strlen(mail->from) + strlen(mail->to) + strlen(mail->subj) + strlen(mail->body) + strlen(SMTP_CMD_EOF);
 	lenMail = strlen(formatMail) + lenFormat;
-	tmpMail = malloc(lenMail);
+	tmpMail = (char*)malloc(lenMail);
 
 	/* Initial Connection */
 	#ifdef _WIN32
-		mailBuf = malloc(lenMail);
+		mailBuf = (char*)malloc(lenMail);
 		sprintf(mailBuf, formatMail, mail->from, mail->to, mail->subj, mail->body, SMTP_CMD_EOF);
 		memcpy(tmpMail, mailBuf, lenMail);
 		free(mailBuf);
@@ -328,7 +328,7 @@ unsigned char smtpMail_comServ(struct smtpMail *mail, SOCKET sock) {
 /*
 	Send a mail
 */
-unsigned char smtpMail_send(struct smtpMail *mail, char *serv, int port, char *usr, char *pwd) {
+unsigned char smtpMail_send(struct smtpMail *mail, const char *serv, int port, const char *usr, const char *pwd) {
 	char *tmpU, *tmpP;
 	unsigned char res;
 	int lenFormat, lenData;
@@ -349,7 +349,7 @@ unsigned char smtpMail_send(struct smtpMail *mail, char *serv, int port, char *u
 		return SMTP_ERR_ALLRDSENT;
 
 	/* Set internal variables for login */
-	mail->server = malloc(strlen(serv)+1);
+	mail->server = (char*)malloc(strlen(serv)+1);
 	sprintf(mail->server, "%s", serv);
 
 	if(port <= 0)
@@ -361,13 +361,13 @@ unsigned char smtpMail_send(struct smtpMail *mail, char *serv, int port, char *u
 	{
 		/* Setup User ID */
 		tmpU = b64_encode(usr, strlen(usr));
-		mail->user = malloc(strlen(tmpU)+1);
+		mail->user = (char*)malloc(strlen(tmpU)+1);
 		mail->user = tmpU;
 
 		/* Setup PWD */
 		tmpP = b64_encode(pwd, strlen(pwd));
 
-		mail->pass = malloc(strlen(tmpP)+1);
+		mail->pass = (char*)malloc(strlen(tmpP)+1);
 		mail->pass = tmpP;
 	}
 
@@ -426,18 +426,18 @@ unsigned char smtpMail_send(struct smtpMail *mail, char *serv, int port, char *u
 
 	if (mail->user==NULL || mail->pass==NULL)
 	{
-		char *formatSrvInfo = "----------\nServer info:\n----------\nHost: %s\nUser: NULL\nPass: NULL\n\n";
+		const char *formatSrvInfo = "----------\nServer info:\n----------\nHost: %s\nUser: NULL\nPass: NULL\n\n";
 		lenFormat = strlen(formatSrvInfo);
 		lenData = strlen(mail->server);
-		mail->srv_info = malloc(lenFormat+lenData);
+		mail->srv_info = (char*)malloc(lenFormat+lenData);
 		sprintf(mail->srv_info, formatSrvInfo, mail->server);
 	}
 	else
 	{
-		char *formatSrvInfo = "----------\nServer info:\n----------\nHost: %s\nUser: %s\nPass: %s\n\n";
+		const char *formatSrvInfo = "----------\nServer info:\n----------\nHost: %s\nUser: %s\nPass: %s\n\n";
 		lenFormat = strlen(formatSrvInfo);
 		lenData = strlen(mail->server) + (mail->user==NULL ? 0 : strlen(mail->user)) + (mail->pass==NULL ? 0 : strlen(mail->pass));
-		mail->srv_info = malloc(lenFormat+lenData);
+		mail->srv_info = (char*)malloc(lenFormat+lenData);
 		sprintf(mail->srv_info, formatSrvInfo, mail->server, mail->user, mail->pass);
 	}
 
@@ -451,8 +451,8 @@ unsigned char smtpMail_send(struct smtpMail *mail, char *serv, int port, char *u
 /*
 	Return a message for the given internal error code
 */
-char *smtpMail_error(unsigned char code) {
-	char *message = malloc(256);
+const char *smtpMail_error(unsigned char code) {
+	char *message = (char*)malloc(256);
 
 	switch(code) {
 		case SMTP_ERR_NOFROM:

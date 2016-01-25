@@ -48,6 +48,6 @@ DESCRIPTION:
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 
-char *b64_encode(char *input, int length);
+char *b64_encode(const char *input, int length);
 
 #endif
