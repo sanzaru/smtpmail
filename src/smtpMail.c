@@ -55,8 +55,8 @@ LICENSE:
 struct smtpMail *smtpMail_init(const char *f, const char *t, const char *s, const char *b) {
 	struct smtpMail *mail=(struct smtpMail*)malloc (sizeof (struct smtpMail));
 	const char *infoFormat = "----------\nMail info:\n----------\nTo: %s\nFrom: %s\nSubject: %s\nBody size: %d\nBody: %s\n\n";
-	int lenFormat;
-	int lenData;
+	size_t lenFormat;
+	size_t lenData;
 
 	/* Set sender address */
 	mail->from = (char*)malloc(strlen(f) + 1);
@@ -165,7 +165,7 @@ unsigned char smtpMail_checkMail(struct smtpMail *mail) {
 
 int smtpMail_sendcmd(struct smtpMail *mail,SOCKET sock,const char *cmd) {
 	char serv_ans[256];
-	int  serv_ans_len;
+	size_t  serv_ans_len;
 
 	/* Store the cmd sent in last_cmd */
 	if (cmd!=NULL)
@@ -181,7 +181,7 @@ int smtpMail_sendcmd(struct smtpMail *mail,SOCKET sock,const char *cmd) {
 	#ifndef _WIN32
 		if (cmd!=NULL)
 			write(sock, cmd, strlen(cmd));
-		serv_ans_len=read(sock, serv_ans, 255);
+		serv_ans_len = (size_t)read(sock, serv_ans, 255);
 	#else
 		if (cmd!=NULL)
 			send(sock, cmd, strlen(cmd), 0);
@@ -199,11 +199,11 @@ int smtpMail_sendcmd(struct smtpMail *mail,SOCKET sock,const char *cmd) {
 	return atoi(mail->last_resp);
 }
 
-unsigned char smtpMail_comServ(struct smtpMail *mail, SOCKET sock) {
+int smtpMail_comServ(struct smtpMail *mail, SOCKET sock) {
 	char command[65536];
 	char *tmpMail;
 	int rc;
-	int lenFormat, lenMail;
+	size_t lenFormat, lenMail;
 	const char *formatMail = "From: <%s>\r\nTo: <%s>\r\nSubject: %s\r\n\r\n%s%s";
 
 	#ifdef _WIN32
@@ -331,7 +331,7 @@ unsigned char smtpMail_comServ(struct smtpMail *mail, SOCKET sock) {
 unsigned char smtpMail_send(struct smtpMail *mail, const char *serv, int port, const char *usr, const char *pwd) {
 	char *tmpU, *tmpP;
 	unsigned char res;
-	int lenFormat, lenData;
+	size_t lenFormat, lenData;
 
 	#ifndef _WIN32
 		int sock;
@@ -360,12 +360,12 @@ unsigned char smtpMail_send(struct smtpMail *mail, const char *serv, int port, c
 	if (usr!=NULL)
 	{
 		/* Setup User ID */
-		tmpU = b64_encode(usr, strlen(usr));
+		tmpU = b64_encode(usr, (int)strlen(usr));
 		mail->user = (char*)malloc(strlen(tmpU)+1);
 		mail->user = tmpU;
 
 		/* Setup PWD */
-		tmpP = b64_encode(pwd, strlen(pwd));
+		tmpP = b64_encode(pwd, (int)strlen(pwd));
 
 		mail->pass = (char*)malloc(strlen(tmpP)+1);
 		mail->pass = tmpP;
@@ -413,7 +413,7 @@ unsigned char smtpMail_send(struct smtpMail *mail, const char *serv, int port, c
 			return SMTP_ERR_SERVNFND;
 
 		bzero((char*) &serv_addr, sizeof(serv_addr));
-		bcopy((char *)srv_hostent->h_addr, (char *)&serv_addr.sin_addr.s_addr, srv_hostent->h_length);
+		bcopy(srv_hostent->h_addr, (char *)&serv_addr.sin_addr.s_addr, (size_t)srv_hostent->h_length);
 
 		serv_addr.sin_family = AF_INET;
 		serv_addr.sin_port = htons(SMTP_PORT);
@@ -442,7 +442,7 @@ unsigned char smtpMail_send(struct smtpMail *mail, const char *serv, int port, c
 	}
 
 	/* Communicate with the server */
-	res = smtpMail_comServ(mail, sock);
+	res = (unsigned char)smtpMail_comServ(mail, sock);
 
 	return res;
 }
@@ -501,7 +501,6 @@ const char *smtpMail_error(unsigned char code) {
 
 		case SMTP_ERR_NOERROR:
 			return "Success! No error reported!";
-			break;
 
 		case SMTP_ERR_CMDFAILED:
 			sprintf(message, "Error (0x%.2x): Server command failed!\n", code);
