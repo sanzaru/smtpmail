@@ -70,8 +70,13 @@ LICENSE:
 #endif
 
 /* Some globals */
-#define FALSE 0
-#define TRUE  1
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
+#ifndef TRUE
+	#define TRUE  1
+#endif
 #define SMTP_PORT 25
 
 /* SMTP server commands */
